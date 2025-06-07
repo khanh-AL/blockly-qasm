@@ -2,19 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <script src="https://unpkg.com/blockly/blockly.min.js">    function downloadPythonFile() {
-      const code = document.getElementById('pythonOutput').value;
-      const blob = new Blob([code], { type: 'text/x-python' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'quokka_program.py';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-  </script>
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
   <style>
     html, body { height: 100%; margin: 0; overflow: hidden; display: flex; }
     #blocklyDiv { height: 100vh; width: 70vw; }
@@ -95,6 +83,20 @@ data = {
 response = requests.post(request_http, json=data, verify=False)
 print(response.text)`;
       document.getElementById('pythonOutput').value = quokkaTemplate;
+    }
+  </script>
+  <script>
+    function downloadPythonFile() {
+      const code = document.getElementById('pythonOutput').value;
+      const blob = new Blob([code], { type: 'text/x-python' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'quokka_program.py';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>
