@@ -187,7 +187,8 @@
     workspace = Blockly.inject('blocklyDiv', {
       toolbox: document.getElementById('toolbox')
     });
-    Blockly.Xml.domToWorkspace(document.getElementById('startBlocks'), workspace);
+    const xml = Blockly.Xml.textToDom(document.getElementById('startBlocks').outerHTML);
+    Blockly.Xml.domToWorkspace(xml, workspace);
 
     function generateQASM() {
       const header = "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[5];\ncreg c[5];\n";
@@ -201,7 +202,8 @@
     function resetToDiceGame() {
       workspace.clear();
       const startBlocks = document.getElementById('startBlocks');
-      Blockly.Xml.domToWorkspace(startBlocks, workspace);
+      const xml = Blockly.Xml.textToDom(startBlocks.outerHTML);
+      Blockly.Xml.domToWorkspace(xml, workspace);
     }
   </script>
 </body>
