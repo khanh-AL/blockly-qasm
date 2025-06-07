@@ -94,12 +94,6 @@
   </xml>
 
   <script>
-    const workspace = Blockly.inject('blocklyDiv', {
-      toolbox: document.getElementById('toolbox')
-    });
-
-    Blockly.Xml.domToWorkspace(document.getElementById('startBlocks'), workspace);
-
     Blockly.defineBlocksWithJsonArray([
       {
         "type": "qasm_h",
@@ -165,6 +159,12 @@
         "helpUrl": ""
       }
     ]);
+
+    const workspace = Blockly.inject('blocklyDiv', {
+      toolbox: document.getElementById('toolbox')
+    });
+
+    Blockly.Xml.domToWorkspace(document.getElementById('startBlocks'), workspace);
 
     Blockly.JavaScript['qasm_h'] = function(block) {
       const qubit = block.getFieldValue('QUBIT');
