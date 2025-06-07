@@ -180,10 +180,13 @@
       return `measure q[${qubit}] -> c[${classical}];\n`;
     };
 
-    const workspace = Blockly.inject('blocklyDiv', {
+    // Move Blockly injection AFTER block definitions
+    let workspace;  // declare first
+
+    // Inject AFTER blocks are defined
+    workspace = Blockly.inject('blocklyDiv', {
       toolbox: document.getElementById('toolbox')
     });
-
     Blockly.Xml.domToWorkspace(document.getElementById('startBlocks'), workspace);
 
     function generateQASM() {
