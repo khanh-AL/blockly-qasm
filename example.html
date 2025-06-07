@@ -7,8 +7,8 @@
     html, body { height: 100%; margin: 0; overflow: hidden; }
     #blocklyDiv { height: 100vh; width: 70vw; float: left; }
     #outputArea { float: right; width: 30vw; height: 100vh; padding: 10px; box-sizing: border-box; overflow: auto; background: #f9f9f9; }
-    textarea { width: 100%; height: 90%; font-family: monospace; }
-    button { margin-top: 10px; }
+    textarea { width: 100%; height: 80%; font-family: monospace; }
+    button { margin-top: 10px; display: block; }
   </style>
 </head>
 <body>
@@ -17,6 +17,7 @@
     <h3>QASM Output</h3>
     <textarea id="qasmOutput"></textarea>
     <button onclick="generateQASM()">Export to QASM</button>
+    <button onclick="resetToDiceGame()">Reset to Dice Game</button>
   </div>
 
   <xml id="toolbox" style="display: none">
@@ -186,6 +187,12 @@
       const header = "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[5];\ncreg c[5];\n";
       const code = Blockly.JavaScript.workspaceToCode(workspace);
       document.getElementById('qasmOutput').value = header + code;
+    }
+
+    function resetToDiceGame() {
+      workspace.clear();
+      const startBlocks = document.getElementById('startBlocks');
+      Blockly.Xml.domToWorkspace(startBlocks, workspace);
     }
   </script>
 </body>
