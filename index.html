@@ -2,30 +2,39 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+  <script src="https://unpkg.com/blockly/blockly.min.js">    function downloadPythonFile() {
+      const code = document.getElementById('pythonOutput').value;
+      const blob = new Blob([code], { type: 'text/x-python' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'quokka_program.py';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
   <style>
-    html, body { height: 100%; margin: 0; overflow: hidden; }
-    #blocklyDiv { height: 100vh; width: 70vw; float: left; }
-    #outputArea { float: right; width: 30vw; height: 100vh; padding: 10px; box-sizing: border-box; overflow: auto; background: #f9f9f9; }
+    html, body { height: 100%; margin: 0; overflow: hidden; display: flex; }
+    #blocklyDiv { height: 100vh; width: 70vw; }
+    #outputArea { height: 100vh; width: 30vw; padding: 10px; box-sizing: border-box; background: #f0f0f0; }
     textarea { width: 100%; height: 90%; font-family: monospace; }
-    button { margin-top: 10px; }
+    button { margin-top: 10px; display: block; width: 100%; }
   </style>
 </head>
 <body>
   <div id="blocklyDiv"></div>
   <div id="outputArea">
-    <h3>QASM Output</h3>
-    <textarea id="qasmOutput"></textarea>
-    <button onclick="generateQASM()">Export to QASM</button>
+    <h3>Python Output</h3>
+    <textarea id="pythonOutput" readonly></textarea>
+    <button onclick="generatePython()">Export to Python</button>
+    <button onclick="generateQuokkaPython()">Export to Quokka Python</button>
+    <button onclick="downloadPythonFile()">Download .py</button>
   </div>
 
   <xml id="toolbox" style="display: none">
-    <category name="Quantum Gates" colour="#5C81A6">
-      <block type="qasm_h"></block>
-      <block type="qasm_cx"></block>
-      <block type="qasm_measure"></block>
-    </category>
-    <category name="Logic" colour="#5CA65C">
+    <category name="Logic" colour="#5C81A6">
       <block type="controls_if"></block>
       <block type="logic_compare"></block>
       <block type="logic_operation"></block>
@@ -33,7 +42,7 @@
       <block type="logic_boolean"></block>
       <block type="logic_null"></block>
     </category>
-    <category name="Loops" colour="#5CA699">
+    <category name="Loops" colour="#5CA65C">
       <block type="controls_repeat_ext">
         <value name="TIMES">
           <shadow type="math_number">
@@ -63,93 +72,29 @@
       toolbox: document.getElementById('toolbox')
     });
 
-    Blockly.defineBlocksWithJsonArray([
-      {
-        "type": "qasm_h",
-        "message0": "H gate on qubit %1",
-        "args0": [
-          {
-            "type": "field_number",
-            "name": "QUBIT",
-            "value": 0,
-            "min": 0
-          }
-        ],
-        "previousStatement": null,
-        "nextStatement": null,
-        "colour": 230,
-        "tooltip": "Applies a Hadamard gate",
-        "helpUrl": ""
-      },
-      {
-        "type": "qasm_cx",
-        "message0": "CNOT from qubit %1 to qubit %2",
-        "args0": [
-          {
-            "type": "field_number",
-            "name": "CTRL",
-            "value": 0,
-            "min": 0
-          },
-          {
-            "type": "field_number",
-            "name": "TARGET",
-            "value": 1,
-            "min": 0
-          }
-        ],
-        "previousStatement": null,
-        "nextStatement": null,
-        "colour": 230,
-        "tooltip": "Applies a CNOT gate",
-        "helpUrl": ""
-      },
-      {
-        "type": "qasm_measure",
-        "message0": "Measure qubit %1 into classical bit %2",
-        "args0": [
-          {
-            "type": "field_number",
-            "name": "QUBIT",
-            "value": 0,
-            "min": 0
-          },
-          {
-            "type": "field_number",
-            "name": "CLASSIC",
-            "value": 0,
-            "min": 0
-          }
-        ],
-        "previousStatement": null,
-        "nextStatement": null,
-        "colour": 160,
-        "tooltip": "Measures a qubit into a classical bit",
-        "helpUrl": ""
-      }
-    ]);
+    function generatePython() {
+      const code = Blockly.Python.workspaceToCode(workspace);
+      document.getElementById('pythonOutput').value = code;
+    }
 
-    Blockly.JavaScript['qasm_h'] = function(block) {
-      const qubit = block.getFieldValue('QUBIT');
-      return `h q[${qubit}];\n`;
-    };
+    function generateQuokkaPython() {
+      const qasmCode = Blockly.Python.workspaceToCode(workspace);
+      const quokkaTemplate = `import json
+import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-    Blockly.JavaScript['qasm_cx'] = function(block) {
-      const ctrl = block.getFieldValue('CTRL');
-      const target = block.getFieldValue('TARGET');
-      return `cx q[${ctrl}], q[${target}];\n`;
-    };
+my_quokka = 'quokka1'
+request_http = f'http://{my_quokka}.quokkacomputing.com/qsim/qasm'
 
-    Blockly.JavaScript['qasm_measure'] = function(block) {
-      const qubit = block.getFieldValue('QUBIT');
-      const classical = block.getFieldValue('CLASSIC');
-      return `measure q[${qubit}] -> c[${classical}];\n`;
-    };
+data = {
+    "script": """${qasmCode}""",
+    "count": 100
+}
 
-    function generateQASM() {
-      const header = "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[5];\ncreg c[5];\n";
-      const code = Blockly.JavaScript.workspaceToCode(workspace);
-      document.getElementById('qasmOutput').value = header + code;
+response = requests.post(request_http, json=data, verify=False)
+print(response.text)`;
+      document.getElementById('pythonOutput').value = quokkaTemplate;
     }
   </script>
 </body>
